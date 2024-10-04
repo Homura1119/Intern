@@ -17,10 +17,11 @@ class PlayersController extends Controller
      */
     public function index()
     {
+        //プレイヤーテーブルからidとnameカラムを選択し、全てのプレイヤーデータを取得
         return new Response(
             Player::query()->
-            select(['id', 'name'])->
-            get());
+            select(['id', 'name'])-> //idとnameカラムを取得
+            get()); //すべてのデータを取得
     }
 
     /**
@@ -31,7 +32,10 @@ class PlayersController extends Controller
      */
     public function show($id)
     {
+        $player = new Player(); //Playerモデルのインスタンスを生成
 
+        //PlayerモデルのPlayerShowメソッドを呼び出し、指定IDのプレイヤー情報を取得
+        return new Response($player->playerShow($id));
     }
 
     /**
@@ -42,7 +46,7 @@ class PlayersController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        
     }
 
     /**
@@ -52,9 +56,17 @@ class PlayersController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+    //更新処理
     public function update(Request $request, $id)
     {
-        //
+        $player=new Player(); //Playerモデルのインスタンスを生成
+
+        //プレイヤー情報をリクエストデータで更新
+        $player->PlayerUpdate($id,$request->name,
+        $request->hp, $request->mp, $request->money);
+
+        //成功メッセージを返す(200は成功ステータスコード)
+        return response()->json(['message'=>'sucsees'],200);
     }
 
     /**
@@ -63,9 +75,22 @@ class PlayersController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+    //削除処理
     public function destroy($id)
     {
-        //
+        $player=new Player(); //Playerモデルのインスタンスを生成
+
+        //プレイヤーが見つからなかった場合、404エラーレスポンスを返す
+        if(!$player)
+        {
+            return response()->json(['message'=>'Player not found',404]);
+        }
+
+        //プレイヤーを削除
+        $player->PlayerDestroy($id);
+
+        //削除成功のメッセージを返す
+        return response()->json(['message'=>'Player deleted successfully'],200);
     }
 
     /**
@@ -73,9 +98,17 @@ class PlayersController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    //作成処理
+    public function create(Request $request)
     {
-        //
+        $player = new Player();//Playerモデルのインスタンスを生成
+
+        //新しいプレイヤーを作成し、作成されたプレイヤーのIDを取得
+        $newId = $player->playerCreate($request->name,
+        $request->hp, $request->mp, $request->money);
+
+        //作成されたプレイヤーIDをレスポンスとして返す
+        return new Response(["id"=>$newId]);
     }
 
     /**
@@ -84,8 +117,9 @@ class PlayersController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+     //編集処理
     public function edit($id)
     {
-        //
+        
     }
 }
