@@ -18,7 +18,7 @@ class PlayersController extends Controller
     public function index()
     {
         //プレイヤーテーブルからidとnameカラムを選択し、全てのプレイヤーデータを取得
-        return new Response(
+        return response()->json(
             Player::query()->
             select(['id', 'name'])-> //idとnameカラムを取得
             get()); //すべてのデータを取得
@@ -35,7 +35,7 @@ class PlayersController extends Controller
         $player = new Player(); //Playerモデルのインスタンスを生成
 
         //PlayerモデルのPlayerShowメソッドを呼び出し、指定IDのプレイヤー情報を取得
-        return new Response($player->playerShow($id));
+        return response()->json($player->playerShow($id));
     }
 
     /**
@@ -65,8 +65,8 @@ class PlayersController extends Controller
         $player->PlayerUpdate($id,$request->name,
         $request->hp, $request->mp, $request->money);
 
-        //成功メッセージを返す(200は成功ステータスコード)
-        return response()->json(['message'=>'sucsees'],200);
+        //成功メッセージを返す
+        return response()->json(['message'=>'sucsees']);
     }
 
     /**
@@ -84,7 +84,7 @@ class PlayersController extends Controller
         $player->PlayerDestroy($id);
 
         //削除成功のメッセージを返す
-        return response()->json(['message'=>'Player deleted successfully'],200);
+        return response()->json(['message'=>'Player deleted successfully']);
     }
 
     /**
@@ -102,7 +102,7 @@ class PlayersController extends Controller
         $request->hp, $request->mp, $request->money);
 
         //作成されたプレイヤーIDをレスポンスとして返す
-        return new Response(["id"=>$newId]);
+        return response()->json(["id"=>$newId]);
     }
 
     /**
