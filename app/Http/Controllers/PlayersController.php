@@ -59,7 +59,7 @@ class PlayersController extends Controller
     //更新処理
     public function update(Request $request, $id)
     {
-        $player=new Player(); //Playerモデルのインスタンスを生成
+        $player = new Player(); //Playerモデルのインスタンスを生成
 
         //プレイヤー情報をリクエストデータで更新
         $player->PlayerUpdate($id,$request->name,
@@ -78,13 +78,7 @@ class PlayersController extends Controller
     //削除処理
     public function destroy($id)
     {
-        $player=new Player(); //Playerモデルのインスタンスを生成
-
-        //プレイヤーが見つからなかった場合、404エラーレスポンスを返す
-        if(!$player)
-        {
-            return response()->json(['message'=>'Player not found',404]);
-        }
+        $player = new Player(); //Playerモデルのインスタンスを生成
 
         //プレイヤーを削除
         $player->PlayerDestroy($id);
@@ -101,7 +95,7 @@ class PlayersController extends Controller
     //作成処理
     public function create(Request $request)
     {
-        $player = new Player();//Playerモデルのインスタンスを生成
+        $player = new Player(); //Playerモデルのインスタンスを生成
 
         //新しいプレイヤーを作成し、作成されたプレイヤーのIDを取得
         $newId = $player->playerCreate($request->name,
