@@ -33,7 +33,7 @@ class Player extends Model
         ]);
     }
 
-    public function PlayerHpMpUpdate($id,$hp,$mp)
+    public function playerHpMpUpdate($id,$hp,$mp)
     {
         Player::query()
             ->where('id',$id

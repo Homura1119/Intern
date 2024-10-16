@@ -157,19 +157,24 @@ class PlayersController extends Controller
                 ->where('player_id',$id)
                     ->where('item_id',$request->itemId)
                         ->first();
-            
-            if(!$playerItem)
-            {
-                throw new Exception('');
-            }
     
             $item = DB::table('items')
                 ->where('id',$request->itemId)
                     ->first();
 
+            if(!$playerItem)
+            {
+                throw new Exception('error'=>'アイテムを所持していません');
+            }
+
+            if(!$item)
+            {
+                throw new Exception('error'=>'アイテムを所持していません');
+            }
+
             $nowItemCount = $playerItem->item_count;
 
-            //アイテムが存在しないか、所持数が不足している場合
+            //HPとMPが200に達したとき
             if($player->hp>=200 && $player->mp>=200)
             {
                 //アイテムを消費せず、現在の状態を返す
@@ -215,7 +220,7 @@ class PlayersController extends Controller
             }
 
             //プレイヤーのHPとMPを更新
-            Player::PlayerHpMpUpdate($id,$newHp,$newMp);
+            Player::playerHpMpUpdate($id,$newHp,$newMp);
 
             //アイテムの所持数を更新
             if($newItemCount>=0)
@@ -225,7 +230,7 @@ class PlayersController extends Controller
             else
             {
                 //エラーレスポンスを返す
-                return response()->json(['error'=>'Item not available or insufficient quantity']);
+                throw new Exception('error'=>'Item not available or insufficient quantity');
             }
 
             DB::commit();
