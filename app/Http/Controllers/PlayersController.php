@@ -169,7 +169,7 @@ class PlayersController extends Controller
 
             if(!$item)
             {
-                throw new Exception('error'=>'アイテムを所持していません');
+                throw new Exception('error'=>'アイテムが存在していません');
             }
 
             $nowItemCount = $playerItem->item_count;
