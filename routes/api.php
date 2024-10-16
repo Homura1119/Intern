@@ -17,5 +17,7 @@ use App\Http\Controllers\PlayersController;
 Route::get('/players', [PlayersController::class, 'index']);
 Route::get('/players/{id}', [PlayersController::class, 'show']); 
 Route::post('/players', [PlayersController::class, 'create']);
+Route::post('/players/{id}/addItem',[PlayersController::class,'addItem']);
+Route::post('/players/{id}/useItem',[PlayersController::class,'useItem']);
 Route::put('/players/{id}', [PlayersController::class, 'update']);
 Route::delete('/players/{id}', [PlayersController::class, 'destroy']);
