@@ -12,12 +12,6 @@ class PlayerItem extends Model
     public $timestamps = false;
     use HasFactory;
 
-    // private $player;
-    // public function __construct(Player $player)
-    // {
-    //     this->player = $player;
-    // }
-
     //アイテムを更新するメソッド
     //指定されたプレイヤーIDとアイテムIDに基づいて、アイテムの数を更新する
     public function UpdateItem($playerId,$itemId,$count)
@@ -36,7 +30,7 @@ class PlayerItem extends Model
         PlayerItem::query()->insert(['player_id'=>$playerId,'item_id'=>$itemId,'item_count'=>$count]);
     }
 
-    public static function PlayerUseItem($playerId,$itemId,$count)
+    public static function usePlayerItem($playerId,$itemId,$count)
     {
         PlayerItem::query()->where('player_id',$playerId)
             ->where('item_id',$itemId)

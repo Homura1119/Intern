@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Exception;
 
 class PlayersController extends Controller
 {
@@ -143,83 +144,108 @@ class PlayersController extends Controller
     //アイテムを使用するメソッド
     public function useItem(Request $request,$id)
     {
-        //プレイヤー情報をデータベースから取得
-        $player=DB::table('players')
-            ->where('id',$id)
-                ->first();
+        DB::beginTransaction();
 
-        //プレイヤーのアイテム情報をデータベースから取得
-        $playerItem=DB::table('player_items')
-            ->where('player_id',$id)
-                ->where('item_id',$request->itemId)
-                    ->first();
-        
-        $item=DB::table('items')
-            ->where('id',$request->itemId)
-                ->select('value')
-                    ->first();
-                    
-        $itemtype=DB::table('items')
-            ->where('id',$request->itemId)
-                ->select('type')
+        try{
+            //プレイヤー情報をデータベースから取得
+            $player = DB::table('players')
+                ->where('id',$id)
                     ->first();
 
-        $nowItemCount=$playerItem->item_count;
+            //プレイヤーのアイテム情報をデータベースから取得
+            $playerItem = DB::table('player_items')
+                ->where('player_id',$id)
+                    ->where('item_id',$request->itemId)
+                        ->first();
+            
+            if(!$playerItem)
+            {
+                throw new Exception('');
+            }
+    
+            $item = DB::table('items')
+                ->where('id',$request->itemId)
+                    ->first();
 
-        //アイテムが存在しないか、所持数が不足している場合
-        if($player->hp>=200&&$player->mp>=200)
-        {
-            //アイテムを消費せず、現在の状態を返す
+            $nowItemCount = $playerItem->item_count;
+
+            //アイテムが存在しないか、所持数が不足している場合
+            if($player->hp>=200 && $player->mp>=200)
+            {
+                //アイテムを消費せず、現在の状態を返す
+                return response()->json([
+                    'itemId'=>$request->itemId,
+                    'count'=>$nowItemCount,
+                    'player'=>[
+                        'id'=>$id,
+                        'hp'=>$player->hp,
+                        'mp'=>$player->mp
+                    ]
+                    'HPもMPも上限に達しました'
+                ]);
+            }
+
+            //新しいアイテムの所持数を計算
+            $newItemCount = $nowItemCount-$request->count;
+
+            if($item->type==1)
+            {
+                $newHp = min($player->hp+$item->value*$request->count,200); 
+                $newMp = $player->mp;
+
+                if($player->hp>=200)
+                {
+                    return response()->json(['error'=>'HPが上限に達しました']);
+                }
+            }
+            else if($item->type==2)
+            {
+                $newMp = min($player->mp+$item->value*$request->count,200);
+                $newHp = $player->hp;
+
+                if($player->mp>=200)
+                {
+                    return response()->json(['error'=>'MPが上限に達しました']);
+                }
+            }
+            else
+            {
+                $newHp = $player->hp;
+                $newMp = $player->mp;
+            }
+
+            //プレイヤーのHPとMPを更新
+            Player::PlayerHpMpUpdate($id,$newHp,$newMp);
+
+            //アイテムの所持数を更新
+            if($newItemCount>=0)
+            {
+                PlayerItem::usePlayerItem($id,$request->itemId,$newItemCount);
+            }
+            else
+            {
+                //エラーレスポンスを返す
+                return response()->json(['error'=>'Item not available or insufficient quantity']);
+            }
+
+            DB::commit();
+
             return response()->json([
-                'itemId'=>$request->itemId,
-                'count'=>$nowItemCount,
+                'ItemId'=>$request->itemId,
+                'count'=>$newItemCount,
                 'player'=>[
                     'id'=>$id,
-                    'hp'=>$player->hp,
-                    'mp'=>$player->mp
+                    'hp'=>$newHp,
+                    'mp'=>$newMp
                 ]
             ]);
         }
-
-        //新しいアイテムの所持数を計算
-        $newItemCount=$nowItemCount-$request->count;
-
-        $newHp=min($player->hp+$item->value*$request->count,200); 
-
-        $newMp=min($player->mp+$item->value*$request->count,200);
-
-        if($itemtype->type==1)
+        
+        catch(Exception $e) 
         {
-            $newHp=min($player->hp+$item->value*$request->count,200); 
+            DB::rollback();
+            return response()->json(["message"=>$e->getMessage()]);
         }
-        else if($itemtype->type==2)
-        {
-            $newMp=min($player->mp+$item->value*$request->count,200);
-        }
-
-        //プレイヤーのHPとMPを更新
-        Player::PlayerHPMPUpdate($id,$newHp,$newMp);
-
-        //アイテムの所持数を更新
-        if($newItemCount>=0)
-        {
-            PlayerItem::PlayerUseItem($id,$request->itemId,$newItemCount);
-        }
-        else
-        {
-            //エラーレスポンスを返す
-            return response()->json(['error'=>'Item not available or insufficient quantity',400]);
-        }
-
-        return response()->json([
-            'ItemId'=>$request->itemId,
-            'count'=>$newItemCount,
-            'player'=>[
-                'id'=>$id,
-                'hp'=>$newHp,
-                'mp'=>$newMp
-            ]
-        ]);
     }
 
     /**
