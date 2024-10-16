@@ -164,17 +164,17 @@ class PlayersController extends Controller
 
             if(!$player)
             {
-                throw new Exception('error'=>'プレイヤーが存在していません');
+                throw new Exception('プレイヤーが存在していません');
             }
             
             if(!$playerItem)
             {
-                throw new Exception('error'=>'アイテムを所持していません');
+                throw new Exception('アイテムを所持していません');
             }
 
             if(!$item)
             {
-                throw new Exception('error'=>'アイテムが存在していません');
+                throw new Exception('アイテムが存在していません');
             }
 
             $nowItemCount = $playerItem->item_count;
@@ -191,7 +191,6 @@ class PlayersController extends Controller
                         'hp'=>$player->hp,
                         'mp'=>$player->mp
                     ]
-                    'HPもMPも上限に達しました'
                 ]);
             }
 
@@ -235,7 +234,7 @@ class PlayersController extends Controller
             else
             {
                 //エラーレスポンスを返す
-                throw new Exception('error'=>'Item not available or insufficient quantity');
+                throw new Exception('Item not available or insufficient quantity');
             }
 
             DB::commit();
