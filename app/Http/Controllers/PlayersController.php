@@ -162,6 +162,11 @@ class PlayersController extends Controller
                 ->where('id',$request->itemId)
                     ->first();
 
+            if(!$player)
+            {
+                throw new Exception('error'=>'プレイヤーが存在していません');
+            }
+            
             if(!$playerItem)
             {
                 throw new Exception('error'=>'アイテムを所持していません');
