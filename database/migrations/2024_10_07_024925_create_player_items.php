@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateItemsTable extends Migration
+class CreatePlayerItems extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,12 @@ class CreateItemsTable extends Migration
      */
     public function up()
     {
-        Schema::create('items', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->integer('value');
-            $table->integer('type')->comment('hp','mp');
-            $table->integer('price');
+        Schema::create('player_items', function (Blueprint $table) {
+            $table->integer('player_id')->unsinged();
+            $table->integer('item_id')->unsinged();
+            $table->integer('item_count');
+
+            $table->primary(['player_id','item_id']);
         });
     }
 
@@ -29,6 +29,6 @@ class CreateItemsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('items');
+        Schema::dropIfExists('player_items');
     }
 }

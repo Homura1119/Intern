@@ -33,6 +33,16 @@ class Player extends Model
         ]);
     }
 
+    public function PlayerHPMPUpdate($id,$hp,$mp)
+    {
+        Player::query()
+            ->where('id',$id
+                )->update([
+                    'hp'=>$hp,
+                    'mp'=>$mp
+            ]);
+    }
+
     //プレイヤー情報を削除するメソッド
     public function PlayerDestroy($id)
     {
